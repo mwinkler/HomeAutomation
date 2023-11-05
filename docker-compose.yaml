@@ -1,0 +1,33 @@
+
+version: '3'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - /root/HomeAutomation/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: always
+    container_name: mosquitto
+
+  mqtt-dashboard:
+    image: secanis/mqtt-dashboard
+    ports:
+      - "3333:3333"
+    environment:
+      - MQTT_SERVER=qnas.home
+      - REDIS_HOST=qnas.home
+    depends_on:
+      - mosquitto
+      - redis
+    restart: always
+    container_name: mqtt-dashboard
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    restart: always
+    container_name: redis
