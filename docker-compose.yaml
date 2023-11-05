@@ -17,7 +17,7 @@ services:
     ports:
       - "3333:3333"
     environment:
-      - MQTT_SERVER=qnas.home
+      - MQTT_HOST=qnas.home
       - REDIS_HOST=qnas.home
     depends_on:
       - mosquitto
