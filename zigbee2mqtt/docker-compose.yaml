@@ -10,3 +10,10 @@ services:
       - 5080:8080
     environment:
       - TZ=Europe/Berlin
+    networks:
+      - home-automation
+
+networks:
+  home-automation:
+    name: home-automation_default
+    external: true

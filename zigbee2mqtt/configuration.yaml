@@ -3,7 +3,7 @@ permit_join: true
 # Docker Compose makes the MQTT-Server available using "mqtt" hostname
 mqtt:
   base_topic: zigbee2mqtt
-  server: mqtt://qnas.home:1883
+  server: mqtt://emqx:1883
 # Zigbee Adapter path
 serial:
   port: tcp://zigbee2eth.home:6638
