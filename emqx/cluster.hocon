@@ -1,0 +1,57 @@
+bridges {
+  webhook {
+    Grafana {
+      body = "[\r\n    {\r\n        \"name\": \"sensor_temperature\",\r\n        \"interval\": 10,\r\n        \"value\": ${temp},\r\n        \"tags\": [\"source=emqx\"],\r\n        \"time\": ${ts}\r\n    },\r\n    {\r\n        \"name\": \"sensor_humidity\",\r\n        \"interval\": 10,\r\n        \"value\": ${hum},\r\n        \"tags\": [\"source=emqx\"],\r\n        \"time\": ${ts}\r\n    }\r\n]"
+      headers {Authorization = "", content-type = "application/json"}
+      method = post
+      url = "https://graphite-prod-24-prod-eu-west-2.grafana.net/graphite/metrics"
+    }
+    Grafana-Shelly-Hausanschluss {
+      body = "[\r\n    {\r\n        \"name\": \"power_total\",\r\n        \"interval\": 1,\r\n        \"value\": ${power_total},\r\n        \"tags\": [\"source=emqx\"],\r\n        \"time\": ${ts}\r\n    },\r\n    {\r\n        \"name\": \"power_phase1\",\r\n        \"interval\": 1,\r\n        \"value\": ${power_phase1},\r\n        \"tags\": [\"source=emqx\"],\r\n        \"time\": ${ts}\r\n    },\r\n    {\r\n        \"name\": \"power_phase2\",\r\n        \"interval\": 1,\r\n        \"value\": ${power_phase2},\r\n        \"tags\": [\"source=emqx\"],\r\n        \"time\": ${ts}\r\n    },\r\n    {\r\n        \"name\": \"power_phase3\",\r\n        \"interval\": 1,\r\n        \"value\": ${power_phase3},\r\n        \"tags\": [\"source=emqx\"],\r\n        \"time\": ${ts}\r\n    }\r\n]"
+      headers {Authorization = "", content-type = "application/json"}
+      method = post
+      url = "https://graphite-prod-24-prod-eu-west-2.grafana.net/graphite/metrics"
+    }
+  }
+}
+listeners {
+  ssl {
+    default {
+      enable = false
+    }
+  }
+  wss {
+    default {
+      enable = false
+    }
+  }
+}
+mqtt {
+}
+rule_engine {
+  rules {
+    Shelly_Hausanschluss {
+      actions = ["webhook:Grafana-Shelly-Hausanschluss"]
+      description = ""
+      enable = true
+      metadata {created_at = 1699732994855}
+      sql = "SELECT\n  payload.total_act_power as power_total,\n  payload.a_act_power as power_phase1,\n  payload.b_act_power as power_phase2,\n  payload.c_act_power as power_phase3,\n  now_timestamp() as ts\nFROM\n  \"shellypro3em-e05a1b334ed4/status/em:0\""
+    }
+    Tasmota_Sensor_To_Prometheus {
+      actions = ["webhook:Grafana"]
+      description = ""
+      enable = true
+      metadata {created_at = 1699221146626}
+      name = ""
+      sql = "SELECT\n  payload.AHT1X.Temperature as temp,\n  payload.AHT1X.Humidity as hum,\n  now_timestamp() as ts\nFROM\n  \"tele/tasmota_1C4407/SENSOR\""
+    }
+    Aquara_Sensor_To_Prometheus {
+      actions = ["webhook:Grafana"]
+      description = ""
+      enable = true
+      metadata {created_at = 1699221146626}
+      name = ""
+      sql = "SELECT\n  payload.temperature as temp,\n  payload.humidity as hum,\n  now_timestamp() as ts\nFROM\n  \"zigbee2mqtt/Temp1\""
+    }
+  }
+}
